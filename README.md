@@ -10,6 +10,25 @@ Jrn is a tool to help you know at time what you've done in the day
 
 ## Installation
 
+### Install python3
+
+Ubuntu / Debian
+```
+sudo apt-get install python3
+```
+Arch
+```
+sudo pacman -S install python3
+```
+Fedora
+```
+sudo dnf install python3
+```
+MacOS
+```
+brew install python3
+```
+
 ```
 git clone https://github.com/Curs3W4ll/jrn.git .jrn
 cd .jrn
