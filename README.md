@@ -34,8 +34,17 @@ brew install python3
 ```
 git clone https://github.com/Curs3W4ll/jrn.git .jrn
 cd .jrn
-chmod +x build.sh
-./build.sh
+chmod +x build.sh; ./build.sh
+```
+
+## Update
+
+You need to update by and, with the git repository:
+```
+cd .jrn
+git restore .
+git pull
+chmod +x build.sh; ./build.sh
 ```
 
 ## Removing
