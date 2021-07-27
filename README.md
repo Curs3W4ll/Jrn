@@ -29,6 +29,8 @@ MacOS
 brew install python3
 ```
 
+### Install jrn
+
 ```
 git clone https://github.com/Curs3W4ll/jrn.git .jrn
 cd .jrn
