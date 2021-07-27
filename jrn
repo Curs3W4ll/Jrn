@@ -7,7 +7,7 @@ from sys import argv, exit
 import os
 import sys
 
-settings_filepath = os.getenv("HOME") + "/.journ.settings"
+settings_filepath = os.getenv("HOME") + "/.jrn.settings"
 settings_separator = ";"
 default_stock_path = os.getenv("HOME") + "/Documents/my_journey.txt"
 stock_separator = "|"
