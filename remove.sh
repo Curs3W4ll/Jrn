@@ -1,2 +1,2 @@
 sudo rm /bin/jrn
-rm -rf ./*
+rm -rf ./* .gitignore .git
