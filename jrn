@@ -14,6 +14,17 @@ stock_separator = "|"
 auto_erased_key = "auto-erased"
 stock_path_key = "stock-path"
 
+class colors:
+    TITLE = "\033[32m"
+    ADD = "\033[92m"
+    REMOVE = "\033[91m"
+    TIME = "\033[94m"
+    CYAN = "\033[96m"
+    WARNING = "\033[93m"
+    UNDERLINE = "\033[4m"
+    BOLD = "\033[1m"
+    END = "\033[0m"
+
 def str2bool(value):
     if isinstance(value, bool):
         return value
@@ -142,16 +153,16 @@ def actualize_date():
             file.write("-----------\n%s\n" %cur_date)
 
 def write_new_activity(activity):
-    print("Starting new activity...")
+    print(colors.ADD + "Starting new activity..." + colors.END)
     cur_time = datetime.now().strftime("%H:%M")
     with open(get_stock_path(), "a") as f:
         f.write(activity)
         f.write(stock_separator)
         f.write(cur_time)
-    print("Activity '" + activity + "' started at " + cur_time)
+    print(colors.ADD + "Activity '" + colors.UNDERLINE + activity + colors.END + colors.ADD + "' started at " + colors.TIME + colors.BOLD + cur_time + colors.END)
 
 def close_activity():
-    print("Closing previous activity...")
+    print(colors.REMOVE + "Closing previous activity..." + colors.END)
     cur_time = datetime.now().strftime("%H:%M")
     with open(get_stock_path(), "a") as f:
         f.write(stock_separator)
@@ -172,13 +183,13 @@ def close_activity():
     with open(get_stock_path(), "a") as f:
         f.write(duration_string)
         f.write("\n")
-    print("Activity '" + splitted[0] + "' closed, duration: " + duration_string)
+    print(colors.REMOVE + "Activity '" + colors.UNDERLINE + splitted[0] + colors.END + colors.REMOVE +"' closed, duration: " + colors.TIME + colors.BOLD + duration_string + colors.END)
 
 def get_activity(activity, boolean):
     if not boolean:
         return activity
     if activity:
-        print("/!\\Warning/!\\ Activities are not taken in count when -p, --previous option is specified")
+        print(colors.WARNING + colors.BOLD + "/!\\Warning/!\\" + colors.END + " Activities are not taken in count when " + colors.BOLD + "-p" + colors.END + ", " + colors.BOLD + "--previous option" + colors.END + " is specified")
     with open(get_stock_path(), "r") as f:
         lines = f.readlines()
     for line in reversed(lines):
@@ -229,23 +240,23 @@ def get_activities_list():
     return None
 
 def display_normal_summary(activities_list):
-    print("\nSummary of your day:\n")
+    print(colors.BOLD + "\nSummary of your day:\n" + colors.END)
     for activity in activities_list:
         activity = activity.rstrip("\n")
         splitted = activity.split("|")
         if len(splitted) >= 4:
-            print(splitted[1] + "-->" + splitted[2] + "\t" + splitted[3] + ":\t" + splitted[0])
+            print(splitted[1] + "-->" + splitted[2] + "\t" + colors.TIME + colors.BOLD + splitted[3] + colors.END + ":\t" + colors.TITLE + colors.BOLD + splitted[0] + colors.END)
         else:
-            print(splitted[1] + "-->...\t...:\t" + splitted[0])
+            print(splitted[1] + "-->...\t...:\t" + colors.TITLE + colors.BOLD + splitted[0] + colors.END)
 
 def check_normal_summary(activity):
     activities_list = get_activities_list()
     if activities_list:
         display_normal_summary(activities_list)
     else:
-        print("No summary to display")
+        print(colors.REMOVE + "No summary to display" + colors.END)
     if activity:
-        print("/!\\Warning/!\\ Activities are not taken in count when -s, --summary option is specified")
+        print(colors.WARNING + colors.BOLD + "/!\\Warning/!\\" + colors.END + " Activities are not taken in count when -s, --summary option is specified")
 
 def display_readable_summary(activities_list):
     activities_sum = []
@@ -267,7 +278,7 @@ def display_readable_summary(activities_list):
                         elem[1] += hours
                         elem[2] += minutes
                         break;
-    print("\nSummary of your day:\n")
+    print(colors.BOLD + "\nSummary of your day:\n" + colors.END)
     total_hours = 0
     total_minutes = 0
     for elem in activities_sum:
@@ -281,7 +292,7 @@ def display_readable_summary(activities_list):
             time = "{}h".format(elem[1])
         else:
             time = "{}m".format(elem[2])
-        print(time + ":\t" + elem[0])
+        print(colors.TIME + colors.BOLD + time + colors.END + ":\t" + colors.BOLD + colors.TITLE + elem[0] + colors.END)
     total_hours += int(total_minutes / 60)
     total_minutes %= 60
     if total_hours and total_minutes:
@@ -290,16 +301,16 @@ def display_readable_summary(activities_list):
         time = "{}h".format(total_hours)
     else:
         time = "{}m".format(total_minutes)
-    print("\nTotal work time:\t" + time)
+    print(colors.CYAN + colors.BOLD + colors.UNDERLINE + "\nTotal work time:\t" + colors.END + colors.CYAN + colors.BOLD + time + colors.END)
 
 def check_readable_summary(activity):
     activities_list = get_activities_list()
     if activities_list:
         display_readable_summary(activities_list)
     else:
-        print("No summary to display")
+        print(colors.REMOVE + "No summary to display" + colors.END)
     if activity:
-        print("/!\\Warning/!\\ Activities are not taken in count when -rs, --readable-summary option is specified")
+        print(colors.WARNING + colors.BOLD + "/!\\Warning/!\\" + colors.END + " Activities are not taken in count when -rs, --readable-summary option is specified")
 
 def main():
     parse = get_args()
