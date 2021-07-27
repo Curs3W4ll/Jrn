@@ -271,10 +271,12 @@ def display_readable_summary(activities_list):
     for elem in activities_sum:
         elem[1] += int(elem[2] / 60)
         elem[2] %= 60
-        if elem[1]:
+        if elem[1] and elem[2]:
             time = "{}h{}m".format(elem[1], elem[2])
+        elif not elem[2]:
+            time = "{}h".format(elem[1])
         else:
-            time = "{}m".format(elem[1])
+            time = "{}m".format(elem[2])
         print(time + ":\t" + elem[0])
 
 def check_readable_summary(activity):
