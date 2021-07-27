@@ -58,3 +58,14 @@ rm -rf .jrn
 ```
 
 ## General Tips
+
+Use it by saying the name of the activity your starting:
+```
+$ jrn "My activity name"
+```
+This will also end your previous activity if one was pending
+
+To end the current activity:
+```
+$ jrn
+```
