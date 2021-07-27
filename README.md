@@ -66,6 +66,7 @@ $ jrn "My activity name"
 ![jrn_new_activity](/img/new_activity.png)
 
 This will also end your previous activity if one was pending
+
 ![jrn_add_activity](/img/add_activity.png)
 ---
 
@@ -83,7 +84,9 @@ To continue the task you was previously working on:
 $ jrn -p
 ```
 ![jrn_new_previous_activity](/img/new_previous_activity.png)
+
 This will end the current activity if their is one
+
 ![jrn_add_previous_activity](/img/add_previous_activity.png)
 ---
 
@@ -101,4 +104,5 @@ Display a global, more readable summary of your activities of the day:
 $ jrn -rs
 ```
 When multiples activities have the same name, their time is additionnated
+
 ![jrn_readable_summary](/img/readable_summary.png)
