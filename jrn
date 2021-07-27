@@ -268,9 +268,13 @@ def display_readable_summary(activities_list):
                         elem[2] += minutes
                         break;
     print("\nSummary of your day:\n")
+    total_hours = 0
+    total_minutes = 0
     for elem in activities_sum:
         elem[1] += int(elem[2] / 60)
         elem[2] %= 60
+        total_hours += elem[1]
+        total_minutes += elem[2]
         if elem[1] and elem[2]:
             time = "{}h{}m".format(elem[1], elem[2])
         elif not elem[2]:
@@ -278,6 +282,15 @@ def display_readable_summary(activities_list):
         else:
             time = "{}m".format(elem[2])
         print(time + ":\t" + elem[0])
+    total_hours += int(total_minutes / 60)
+    total_minutes %= 60
+    if total_hours and total_minutes:
+        time = "{}h{}m".format(total_hours, total_minutes)
+    elif not total_minutes:
+        time = "{}h".format(total_hours)
+    else:
+        time = "{}m".format(total_minutes)
+    print("\nTotal work time:\t" + time)
 
 def check_readable_summary(activity):
     activities_list = get_activities_list()
