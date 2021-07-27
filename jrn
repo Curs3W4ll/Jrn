@@ -32,6 +32,7 @@ def get_args():
     parse.add_argument("-c", "--clear", action="store_true", help="Clear the journal stock")
     parse.add_argument("-s", "--summary", action="store_true", help="Make a summary of your journey")
     parse.add_argument("-rs", "--readable-summary", action="store_true", help="Make a readable summary of your journey with total times")
+    parse.add_argument("-p", "--previous", action="store_true", help="Take the activity you was doing before")
     parse.add_argument("Activity", type=str, nargs="?", help="A litle description of the activity you started")
     return parse
 
@@ -173,8 +174,25 @@ def close_activity():
         f.write("\n")
     print("Activity '" + splitted[0] + "' closed, duration: " + duration_string)
 
-def write_activity(activity):
+def get_activity(activity, boolean):
+    if not boolean:
+        return activity
+    if activity:
+        print("/!\\Warning/!\\ Activities are not taken in count when -p, --previous option is specified")
+    with open(get_stock_path(), "r") as f:
+        lines = f.readlines()
+    for line in reversed(lines):
+        line = line.rstrip("\n")
+        splitted = line.split(stock_separator)
+        if len(splitted) == 4:
+            return splitted[0]
+    return activity
+
+def write_activity(activity, prev_boolean):
     actualize_date()
+    new_activity = get_activity(activity, prev_boolean)
+    activity = new_activity
+    print("After", activity)
     with open(get_stock_path(), "r") as f:
         lines = f.readlines()
     for line in reversed(lines):
@@ -182,6 +200,7 @@ def write_activity(activity):
         splitted = line.split(stock_separator)
         if len(splitted) == 2:
             close_activity()
+            break;
     if activity:
         write_new_activity(activity)
 
@@ -284,7 +303,7 @@ def main():
     elif args.readable_summary:
         check_readable_summary(args.Activity)
     else:
-        write_activity(args.Activity)
+        write_activity(args.Activity, args.previous)
     return 0
 
 if __name__ == "__main__":
