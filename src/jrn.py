@@ -192,7 +192,6 @@ def write_activity(activity, prev_boolean):
     actualize_date()
     new_activity = get_activity(activity, prev_boolean)
     activity = new_activity
-    print("After", activity)
     with open(get_stock_path(), "r") as f:
         lines = f.readlines()
     for line in reversed(lines):
