@@ -61,7 +61,7 @@ rm -rf .jrn
 
 Use it by saying the name of the activity your starting:
 ```
-$ jrn "My activity name"
+$ jrn "My activity"
 ```
 ![jrn_new_activity](/img/new_activity.png)
 
