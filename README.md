@@ -69,3 +69,19 @@ To end the current activity:
 ```
 $ jrn
 ```
+
+To continue the task you was previously working on:
+```
+$ jrn -p
+```
+This will end the current activity if their is one
+
+Display a summary of all the activity you've done in the day:
+```
+$ jrn -s
+```
+
+Display a global, more readable summary of your activities of the day:
+```
+$ jrn -rs
+```
