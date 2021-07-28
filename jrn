@@ -24,15 +24,22 @@ class colors:
     BOLD = "\033[1m"
     END = "\033[0m"
 
-def str2bool(value):
-    if isinstance(value, bool):
-        return value
-    if value.lower() in ("yes", "true", "enable", "y", "t", "e", "1"):
-        return True
-    elif value.lower() in ("no", "false", "disable", "n", "f", "d", "0"):
-        return False
-    else:
-        raise argparse.ArgumentTypeError("Boolean value expected.")
+def date_format(value):
+    error_msg = "Invalid date: Date expected with this format: 'Day Month Year', exemple: 16 Nov 2019"
+    splitted = value.split(" ")
+    if len(splitted) != 3:
+        print(error_msg)
+        exit(1)
+    if int(splitted[0]) < 1 or int(splitted[0]) > 31:
+        print(error_msg)
+        exit(1)
+    if not splitted[2].isdecimal():
+        print(error_msg)
+        exit(1)
+    if splitted[1] not in ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]:
+        print(error_msg)
+        exit(1)
+    return str(value)
 
 def get_args():
     parse = ArgumentParser(description="A simple tool to keep up what you've done in your day")
@@ -41,6 +48,7 @@ def get_args():
     parse.add_argument("-c", "--clear", action="store_true", help="Clear the journal history")
     parse.add_argument("-s", "--summary", action="store_true", help="Make a summary of your journey")
     parse.add_argument("-rs", "--readable-summary", action="store_true", help="Make a readable summary of your journey with total times")
+    parse.add_argument("-d", "--date", type=date_format, nargs=1, help="Select a specific date for the summary, format: 'Day Month Year', exemple: 16 Nov 2019")
     parse.add_argument("-p", "--previous", action="store_true", help="Take the activity you was doing before")
     parse.add_argument("Activity", type=str, nargs="?", help="A litle description of the activity you started")
     return parse
@@ -204,10 +212,9 @@ def get_activity(activity, boolean):
             exit(1)
     return change_if_youtrack(activity)
 
-def write_activity(args):
-    activity = args.Activity
+def write_activity(activity, prev):
     actualize_date()
-    new_activity = get_activity(activity, args.previous)
+    new_activity = get_activity(activity, prev)
     activity = new_activity
     f = open_file(get_stock_path(), "r", False)
     if f:
@@ -222,8 +229,11 @@ def write_activity(args):
     if activity:
         write_new_activity(activity)
 
-def get_activities_list():
-    cur_date = date.today().strftime("%d %b %Y")
+def get_activities_list(spec_date):
+    if spec_date != None:
+        cur_date = spec_date[0]
+    else:
+        cur_date = date.today().strftime("%d %b %Y")
     f = open_file(get_stock_path(), "r", False)
     if not f:
         return None
@@ -247,8 +257,11 @@ def get_activities_list():
         i -= 1
     return None
 
-def display_normal_summary(activities_list):
-    print(colors.BOLD + "\nSummary of your day:\n" + colors.END)
+def display_normal_summary(activities_list, spec_date):
+    if spec_date != None:
+        print(colors.BOLD + "\nSummary of the " + spec_date[0] + ":\n" + colors.END)
+    else:
+        print(colors.BOLD + "\nSummary of your day:\n" + colors.END)
     for activity in activities_list:
         activity = activity.rstrip("\n")
         splitted = activity.split("|")
@@ -257,16 +270,19 @@ def display_normal_summary(activities_list):
         else:
             print(splitted[1] + "-->...\t...:\t" + colors.TITLE + colors.BOLD + splitted[0] + colors.END)
 
-def check_normal_summary(activity):
-    activities_list = get_activities_list()
+def check_normal_summary(activity, spec_date):
+    activities_list = get_activities_list(spec_date)
     if activities_list:
-        display_normal_summary(activities_list)
+        display_normal_summary(activities_list, spec_date)
     else:
-        print(colors.REMOVE + "No summary to display" + colors.END)
+        if spec_date != None:
+            print(colors.REMOVE + "No summary to display for " + spec_date[0] + colors.END)
+        else:
+            print(colors.REMOVE + "No summary to display for today" + colors.END)
     if activity:
         print(colors.WARNING + colors.BOLD + "/!\\Warning/!\\" + colors.END + " Activities are not taken in count when -s, --summary option is specified")
 
-def display_readable_summary(activities_list):
+def display_readable_summary(activities_list, spec_date):
     activities_sum = []
     for activity in activities_list:
         activity = activity.rstrip("\n")
@@ -286,7 +302,10 @@ def display_readable_summary(activities_list):
                         elem[1] += hours
                         elem[2] += minutes
                         break;
-    print(colors.BOLD + "\nSummary of your day:\n" + colors.END)
+    if spec_date != None:
+        print(colors.BOLD + "\nSummary of the " + spec_date[0] + ":\n" + colors.END)
+    else:
+        print(colors.BOLD + "\nSummary of your day:\n" + colors.END)
     total_hours = 0
     total_minutes = 0
     for elem in activities_sum:
@@ -311,12 +330,15 @@ def display_readable_summary(activities_list):
         time = "{}m".format(total_minutes)
     print(colors.CYAN + colors.BOLD + colors.UNDERLINE + "\nTotal work time:\t" + colors.END + colors.CYAN + colors.BOLD + time + colors.END)
 
-def check_readable_summary(activity):
-    activities_list = get_activities_list()
+def check_readable_summary(activity, spec_date):
+    activities_list = get_activities_list(spec_date)
     if activities_list:
-        display_readable_summary(activities_list)
+        display_readable_summary(activities_list, spec_date)
     else:
-        print(colors.REMOVE + "No summary to display" + colors.END)
+        if spec_date != None:
+            print(colors.REMOVE + "No summary to display for " + spec_date[0] + colors.END)
+        else:
+            print(colors.REMOVE + "No summary to display for today" + colors.END)
     if activity:
         print(colors.WARNING + colors.BOLD + "/!\\Warning/!\\" + colors.END + " Activities are not taken in count when -rs, --readable-summary option is specified")
 
@@ -327,7 +349,9 @@ def main():
     except SystemExit:
         return 1
 
-    if args.reset or args.change_path != None or args.clear or args.summary or args.readable_summary:
+    if args.reset or args.change_path != None or args.clear or args.summary or args.readable_summary or args.date:
+        if args.date and not args.summary and not args.readable_summary:
+            parse.error("-d requires -s, --summary or -rs, --readable_summary")
         if args.reset:
             reset_settings()
         if args.change_path != None:
@@ -335,9 +359,9 @@ def main():
         if args.clear:
             clear_stock()
         if args.summary:
-            check_normal_summary(args.Activity)
+            check_normal_summary(args.Activity, args.date)
         elif args.readable_summary:
-            check_readable_summary(args.Activity)
+            check_readable_summary(args.Activity, args.date)
     else:
         write_activity(args.Activity, args.previous)
     return 0
