@@ -175,19 +175,23 @@ def close_activity():
 def change_if_youtrack(activity):
     if not activity:
         return activity
-    if "RDA" in activity:
-        activity = activity.replace("RDA", "https://youtracknew.doyoudreamup.com/issue/RDA")
-    if "rda" in activity:
-        activity = activity.replace("rda", "https://youtracknew.doyoudreamup.com/issue/RDA")
-    if "RDS" in activity:
-        activity = activity.replace("RDS", "https://youtracknew.doyoudreamup.com/issue/RDS")
-    if "rds" in activity:
-        activity = activity.replace("rds", "https://youtracknew.doyoudreamup.com/issue/RDS")
-    if "INTERNE" in activity:
-        activity = activity.replace("INTERNE", "https://youtracknew.doyoudreamup.com/issue/INTERNE")
-    if "interne" in activity:
-        activity = activity.replace("interne", "https://youtracknew.doyoudreamup.com/issue/INTERNE")
-    return activity
+    splitted = activity.split(" ")
+    i = 0
+    for word in splitted:
+        if "RDA" in word and "https://youtracknew.doyoudreamup.com/issue/RDA" not in word:
+            splitted[i] = word.replace("RDA", "https://youtracknew.doyoudreamup.com/issue/RDA")
+        if "rda" in word and "https://youtracknew.doyoudreamup.com/issue/RDA" not in word:
+            splitted[i] = word.replace("rda", "https://youtracknew.doyoudreamup.com/issue/RDA")
+        if "RDS" in word and "https://youtracknew.doyoudreamup.com/issue/RDS" not in word:
+            splitted[i] = word.replace("RDS", "https://youtracknew.doyoudreamup.com/issue/RDS")
+        if "rds" in word and "https://youtracknew.doyoudreamup.com/issue/RDS" not in word:
+            splitted[i] = word.replace("rds", "https://youtracknew.doyoudreamup.com/issue/RDS")
+        if "INTERNE" in word and "https://youtracknew.doyoudreamup.com/issue/INTERNE" not in word:
+            splitted[i] = word.replace("INTERNE", "https://youtracknew.doyoudreamup.com/issue/INTERNE")
+        if "interne" in word and "https://youtracknew.doyoudreamup.com/issue/RDA" not in word:
+            splitted[i] = word.replace("interne", "https://youtracknew.doyoudreamup.com/issue/INTERNE")
+        i += 1
+    return " ".join(splitted)
 
 def get_activity(activity, boolean):
     if boolean:
