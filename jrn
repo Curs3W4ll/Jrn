@@ -73,8 +73,6 @@ def get_stock_path():
     return default_stock_path
 
 def write_stock_path(path):
-    if path == None:
-        return
     old_path = get_stock_path()
     try:
         fnew = open(path, "w")
@@ -104,15 +102,13 @@ def write_stock_path(path):
     except IOError:
         print(colors.WARNING + colors.BOLD + "/!\\Warning/!\\" + colors.END + " File '" + old_path + "' cannot be open, reason: no directory")
 
-def reset_settings_if_needed(boolean):
-    if boolean:
-        f = open(settings_filepath, "w")
-        f.close()
+def reset_settings():
+    f = open(settings_filepath, "w")
+    f.close()
 
-def clear_stock_if_needed(boolean):
-    if boolean:
-        f = open(get_stock_path(), "w")
-        f.close()
+def clear_stock():
+    f = open(get_stock_path(), "w")
+    f.close()
 
 def actualize_date():
     cur_date = date.today().strftime("%d %b %Y")
@@ -204,9 +200,10 @@ def get_activity(activity, boolean):
             exit(1)
     return change_if_youtrack(activity)
 
-def write_activity(activity, prev_boolean):
+def write_activity(args):
+    activity = args.Activity
     actualize_date()
-    new_activity = get_activity(activity, prev_boolean)
+    new_activity = get_activity(activity, args.previous)
     activity = new_activity
     f = open_file(get_stock_path(), "r", False)
     if f:
@@ -326,13 +323,17 @@ def main():
     except SystemExit:
         return 1
 
-    reset_settings_if_needed(args.reset)
-    write_stock_path(args.change_path)
-    clear_stock_if_needed(args.clear)
-    if args.summary:
-        check_normal_summary(args.Activity)
-    elif args.readable_summary:
-        check_readable_summary(args.Activity)
+    if args.reset or args.change_path != None or args.clear or args.summary or args.readable_summary:
+        if args.reset:
+            reset_settings()
+        if args.change_path != None:
+            write_stock_path(args.change_path)
+        if args.clear:
+            clear_stock()
+        if args.summary:
+            check_normal_summary(args.Activity)
+        elif args.readable_summary:
+            check_readable_summary(args.Activity)
     else:
         write_activity(args.Activity, args.previous)
     return 0
