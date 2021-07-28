@@ -45,14 +45,22 @@ def get_args():
     parse.add_argument("Activity", type=str, nargs="?", help="A litle description of the activity you started")
     return parse
 
+def open_file(path, mode, error_bool):
+    try:
+        f = open(path, mode)
+    except IOError:
+        if error_bool:
+            print(colors.REMOVE + colors.BOLD + "/!\\Error/!\\" + colors.END + colors.REMOVE + " File '" + path + "' cannot be open" + colors.END)
+        return None
+    return f
+
 def read_settings_file():
     data = []
-    try:
-        file = open(settings_filepath, 'r')
-        data = file.readlines()
-        file.close()
-    except IOError:
+    f = open_file(settings_filepath, "r", False)
+    if not f:
         return data
+    data = f.readlines()
+    f.close()
     return data
 
 def get_stock_path():
@@ -68,6 +76,11 @@ def write_stock_path(path):
     if path == None:
         return
     old_path = get_stock_path()
+    try:
+        fnew = open(path, "w")
+    except IOError:
+        print(colors.REMOVE + colors.BOLD + "/!\\Error/!\\" + colors.END + colors.REMOVE + " File '" + path + "' cannot be created, reason: no directory" + colors.END)
+        exit(1)
     f = open(settings_filepath, "a")
     f.close()
     with open(settings_filepath, "r+") as f:
@@ -79,14 +92,17 @@ def write_stock_path(path):
         f.truncate()
     with open(settings_filepath, "a") as f:
         f.writelines(stock_path_key + settings_separator + path + "\n")
-    f = open(old_path, "a")
-    f.close()
-    with open(old_path, "r") as fold:
-        d = fold.readlines()
-    with open(path, "w") as fnew:
+    try:
+        f = open(old_path, "a")
+        f.close()
+        with open(old_path, "r") as fold:
+            d = fold.readlines()
         for i in d:
             fnew.write(i)
-    os.remove(old_path)
+        fnew.close()
+        os.remove(old_path)
+    except IOError:
+        print(colors.WARNING + colors.BOLD + "/!\\Warning/!\\" + colors.END + " File '" + old_path + "' cannot be open, reason: no directory")
 
 def reset_settings_if_needed(boolean):
     if boolean:
@@ -100,23 +116,20 @@ def clear_stock_if_needed(boolean):
 
 def actualize_date():
     cur_date = date.today().strftime("%d %b %Y")
-    try:
-        f = open(get_stock_path(), "r")
+    f = open_file(get_stock_path(), "r", False)
+    if f:
         lines = f.readlines()
         f.close()
         for line in reversed(lines):
             line = line.rstrip("\n")
             splitted = line.split(stock_separator)
             if len(splitted) == 1:
-                if splitted[0] != cur_date:
-                    with open(get_stock_path(), "a") as f:
-                        f.write("-----------\n%s\n" %cur_date)
-                return
-        with open(get_stock_path(), "a") as f:
-            f.write("-----------\n%s\n" %cur_date)
-    except IOError:
-        with open(get_stock_path(), "a") as file:
-            file.write("-----------\n%s\n" %cur_date)
+                if splitted[0] == cur_date:
+                    return
+                else:
+                    break;
+    with open(get_stock_path(), "a") as f:
+        f.write("-----------\n%s\n" %cur_date)
 
 def write_new_activity(activity):
     print(colors.ADD + "Starting new activity..." + colors.END)
@@ -152,6 +165,8 @@ def close_activity():
     print(colors.REMOVE + "Activity '" + colors.UNDERLINE + splitted[0] + colors.END + colors.REMOVE +"' closed, duration: " + colors.TIME + colors.BOLD + duration_string + colors.END)
 
 def change_if_youtrack(activity):
+    if not activity:
+        return activity
     if "RDA" in activity:
         activity = activity.replace("RDA", "https://youtracknew.doyoudreamup.com/issue/RDA")
     if "rda" in activity:
@@ -170,54 +185,65 @@ def get_activity(activity, boolean):
     if boolean:
         if activity:
             print(colors.WARNING + colors.BOLD + "/!\\Warning/!\\" + colors.END + " Activities are not taken in count when " + colors.BOLD + "-p" + colors.END + ", " + colors.BOLD + "--previous option" + colors.END + " is specified")
-        with open(get_stock_path(), "r") as f:
-            lines = f.readlines()
+        f = open_file(get_stock_path(), "r", False)
+        if not f:
+            print(colors.REMOVE + colors.BOLD + "/!\\Error/!\\" + colors.END + colors.REMOVE + " Can't take previous task as activity, reason: no history file" + colors.END)
+            exit(1)
+        lines = f.readlines()
+        f.close()
+        check_bool = False
         for line in reversed(lines):
             line = line.rstrip("\n")
             splitted = line.split(stock_separator)
             if len(splitted) == 4:
                 activity = splitted[0]
+                check_bool = True
                 break;
+        if not check_bool:
+            print(colors.REMOVE + colors.BOLD + "/!\\Error/!\\" + colors.END + colors.REMOVE + " Can't take previous task or activity, reason: no previous activity (empty history)" + colors.END)
+            exit(1)
     return change_if_youtrack(activity)
 
 def write_activity(activity, prev_boolean):
     actualize_date()
     new_activity = get_activity(activity, prev_boolean)
     activity = new_activity
-    with open(get_stock_path(), "r") as f:
+    f = open_file(get_stock_path(), "r", False)
+    if f:
         lines = f.readlines()
-    for line in reversed(lines):
-        line = line.rstrip("\n")
-        splitted = line.split(stock_separator)
-        if len(splitted) == 2:
-            close_activity()
-            break;
+        f.close()
+        for line in reversed(lines):
+            line = line.rstrip("\n")
+            splitted = line.split(stock_separator)
+            if len(splitted) == 2:
+                close_activity()
+                break;
     if activity:
         write_new_activity(activity)
 
 def get_activities_list():
     cur_date = date.today().strftime("%d %b %Y")
-    try:
-        f = open(get_stock_path(), "r")
-        lines = f.readlines()
-        f.close()
-        i = len(lines)
-        activities_list = []
-        for line in reversed(lines):
-            line = line.rstrip("\n")
-            splitted = line.split(stock_separator)
-            if len(splitted) == 1:
-                if splitted[0] != cur_date:
-                    return None
-                else:
-                    for l in islice(lines, i, None):
-                        activities_list.append(l)
-                    return activities_list
-                    display_normal_summary(activities_list)
-                break;
-            i -= 1
-    except IOError:
+    f = open_file(get_stock_path(), "r", False)
+    if not f:
         return None
+    f = open(get_stock_path(), "r")
+    lines = f.readlines()
+    f.close()
+    i = len(lines)
+    activities_list = []
+    for line in reversed(lines):
+        line = line.rstrip("\n")
+        splitted = line.split(stock_separator)
+        if len(splitted) == 1:
+            if splitted[0] != cur_date:
+                return None
+            else:
+                for l in islice(lines, i, None):
+                    activities_list.append(l)
+                return activities_list
+                display_normal_summary(activities_list)
+            break;
+        i -= 1
     return None
 
 def display_normal_summary(activities_list):
