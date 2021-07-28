@@ -11,7 +11,6 @@ settings_filepath = os.getenv("HOME") + "/.jrn.settings"
 settings_separator = ";"
 default_stock_path = os.getenv("HOME") + "/Documents/my_journey.txt"
 stock_separator = "|"
-auto_erased_key = "auto-erased"
 stock_path_key = "stock-path"
 
 class colors:
@@ -37,7 +36,6 @@ def str2bool(value):
 
 def get_args():
     parse = ArgumentParser(description="A simple tool to keep up what you've done in your day")
-    parse.add_argument("-e", "--auto-erased", type=str2bool, nargs="?", help="Enable or disable the auto clear of the file each day", metavar="enable/disable")
     parse.add_argument("-cp", "--change-path", type=str, help="Change the path where the program stock your daily journal", metavar="new_path")
     parse.add_argument("-r", "--reset", action="store_true", help="Reset settings to default")
     parse.add_argument("-c", "--clear", action="store_true", help="Clear the journal stock")
@@ -56,34 +54,6 @@ def read_settings_file():
     except IOError:
         return data
     return data
-
-def get_auto_erased():
-    data = read_settings_file()
-    for line in data:
-        splitted = line.split(settings_separator)
-        splitted[1] = splitted[1].rstrip("\n")
-        if splitted[0] == auto_erased_key:
-            return str2bool(splitted[1])
-    return True
-
-def write_auto_erased(boolean):
-    if boolean == None:
-        return
-    f = open(settings_filepath, "a")
-    f.close()
-    with open(settings_filepath, "r+") as f:
-        d = f.readlines()
-        f.seek(0)
-        for i in d:
-            if (i.split(settings_separator))[0] != auto_erased_key:
-                f.write(i)
-        f.truncate()
-    if boolean:
-        value = "True"
-    else:
-        value = "False"
-    with open(settings_filepath, 'a') as f:
-        f.writelines(auto_erased_key + settings_separator + value + "\n")
 
 def get_stock_path():
     data = read_settings_file()
@@ -139,13 +109,9 @@ def actualize_date():
             splitted = line.split(stock_separator)
             if len(splitted) == 1:
                 if splitted[0] != cur_date:
-                    if get_auto_erased():
-                        open(get_stock_path(), "w").close()
                     with open(get_stock_path(), "a") as f:
                         f.write("-----------\n%s\n" %cur_date)
                 return
-        if get_auto_erased():
-            open(get_stock_path(), "w").close()
         with open(get_stock_path(), "a") as f:
             f.write("-----------\n%s\n" %cur_date)
     except IOError:
@@ -185,19 +151,34 @@ def close_activity():
         f.write("\n")
     print(colors.REMOVE + "Activity '" + colors.UNDERLINE + splitted[0] + colors.END + colors.REMOVE +"' closed, duration: " + colors.TIME + colors.BOLD + duration_string + colors.END)
 
-def get_activity(activity, boolean):
-    if not boolean:
-        return activity
-    if activity:
-        print(colors.WARNING + colors.BOLD + "/!\\Warning/!\\" + colors.END + " Activities are not taken in count when " + colors.BOLD + "-p" + colors.END + ", " + colors.BOLD + "--previous option" + colors.END + " is specified")
-    with open(get_stock_path(), "r") as f:
-        lines = f.readlines()
-    for line in reversed(lines):
-        line = line.rstrip("\n")
-        splitted = line.split(stock_separator)
-        if len(splitted) == 4:
-            return splitted[0]
+def change_if_youtrack(activity):
+    if "RDA" in activity:
+        activity = activity.replace("RDA", "https://youtracknew.doyoudreamup.com/issue/RDA")
+    if "rda" in activity:
+        activity = activity.replace("rda", "https://youtracknew.doyoudreamup.com/issue/RDA")
+    if "RDS" in activity:
+        activity = activity.replace("RDS", "https://youtracknew.doyoudreamup.com/issue/RDS")
+    if "rds" in activity:
+        activity = activity.replace("rds", "https://youtracknew.doyoudreamup.com/issue/RDS")
+    if "INTERNE" in activity:
+        activity = activity.replace("INTERNE", "https://youtracknew.doyoudreamup.com/issue/INTERNE")
+    if "interne" in activity:
+        activity = activity.replace("interne", "https://youtracknew.doyoudreamup.com/issue/INTERNE")
     return activity
+
+def get_activity(activity, boolean):
+    if boolean:
+        if activity:
+            print(colors.WARNING + colors.BOLD + "/!\\Warning/!\\" + colors.END + " Activities are not taken in count when " + colors.BOLD + "-p" + colors.END + ", " + colors.BOLD + "--previous option" + colors.END + " is specified")
+        with open(get_stock_path(), "r") as f:
+            lines = f.readlines()
+        for line in reversed(lines):
+            line = line.rstrip("\n")
+            splitted = line.split(stock_separator)
+            if len(splitted) == 4:
+                activity = splitted[0]
+                break;
+    return change_if_youtrack(activity)
 
 def write_activity(activity, prev_boolean):
     actualize_date()
@@ -320,7 +301,6 @@ def main():
         return 1
 
     reset_settings_if_needed(args.reset)
-    write_auto_erased(args.auto_erased)
     write_stock_path(args.change_path)
     clear_stock_if_needed(args.clear)
     if args.summary:
