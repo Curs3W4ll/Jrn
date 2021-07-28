@@ -48,8 +48,8 @@ def get_args():
     parse.add_argument("-c", "--clear", action="store_true", help="Clear the journal history")
     parse.add_argument("-s", "--summary", action="store_true", help="Make a summary of your journey")
     parse.add_argument("-rs", "--readable-summary", action="store_true", help="Make a readable summary of your journey with total times")
-    parse.add_argument("-d", "--date", type=date_format, nargs=1, help="Select a specific date for the summary, format: 'Day Month Year', exemple: 16 Nov 2019")
-    parse.add_argument("-p", "--previous", action="store_true", help="Take the activity you was doing before")
+    parse.add_argument("-d", "--date", type=date_format, nargs=1, help="Select a specific date for the summary, format: 'Day Month Year', example: 16 Nov 2019")
+    parse.add_argument("-p", "--previous", action="store_true", help="Take the activity you was doing before (override Activity)")
     parse.add_argument("Activity", type=str, nargs="?", help="A litle description of the activity you started")
     return parse
 
@@ -250,14 +250,13 @@ def get_activities_list(spec_date):
         line = line.rstrip("\n")
         splitted = line.split(stock_separator)
         if len(splitted) == 1:
-            if splitted[0] != cur_date:
-                return None
-            else:
+            if splitted[0] == cur_date:
                 for l in islice(lines, i, None):
+                    if len(l.split("|")) == 1:
+                        break;
                     activities_list.append(l)
                 return activities_list
                 display_normal_summary(activities_list)
-            break;
         i -= 1
     return None
 

@@ -106,3 +106,11 @@ $ jrn -rs
 When multiples activities have the same name, their time is additionnated
 
 ![jrn_readable_summary](/img/readable_summary.png)
+---
+
+
+If you want to select a specific date for the summaries:
+```
+$ jrn -s -d "27 Jul 2021"
+```
+![jrn_dated_summary](/img/dated_summary.png)
