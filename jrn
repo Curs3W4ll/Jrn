@@ -38,7 +38,7 @@ def get_args():
     parse = ArgumentParser(description="A simple tool to keep up what you've done in your day")
     parse.add_argument("-cp", "--change-path", type=str, help="Change the path where the program stock your daily journal", metavar="new_path")
     parse.add_argument("-r", "--reset", action="store_true", help="Reset settings to default")
-    parse.add_argument("-c", "--clear", action="store_true", help="Clear the journal stock")
+    parse.add_argument("-c", "--clear", action="store_true", help="Clear the journal history")
     parse.add_argument("-s", "--summary", action="store_true", help="Make a summary of your journey")
     parse.add_argument("-rs", "--readable-summary", action="store_true", help="Make a readable summary of your journey with total times")
     parse.add_argument("-p", "--previous", action="store_true", help="Take the activity you was doing before")
@@ -79,6 +79,7 @@ def write_stock_path(path):
     except IOError:
         print(colors.REMOVE + colors.BOLD + "/!\\Error/!\\" + colors.END + colors.REMOVE + " File '" + path + "' cannot be created, reason: no directory" + colors.END)
         exit(1)
+    path = os.path.abspath(path)
     f = open(settings_filepath, "a")
     f.close()
     with open(settings_filepath, "r+") as f:
@@ -101,14 +102,17 @@ def write_stock_path(path):
         os.remove(old_path)
     except IOError:
         print(colors.WARNING + colors.BOLD + "/!\\Warning/!\\" + colors.END + " File '" + old_path + "' cannot be open, reason: no directory")
+    print(colors.CYAN + "Activities stocking path have been changed\n" + colors.BOLD + old_path + colors.END + colors.CYAN + "  --->  " + colors.BOLD + path + colors.END)
 
 def reset_settings():
     f = open(settings_filepath, "w")
     f.close()
+    print(colors.CYAN + "Settings have been reset to default\n\tDefault stocking path: " + colors.BOLD + default_stock_path + colors.END)
 
 def clear_stock():
     f = open(get_stock_path(), "w")
     f.close()
+    print(colors.CYAN + "Activities history have been cleared" + colors.END)
 
 def actualize_date():
     cur_date = date.today().strftime("%d %b %Y")
