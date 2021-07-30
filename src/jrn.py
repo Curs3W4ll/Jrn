@@ -25,6 +25,8 @@ class colors:
     END = "\033[0m"
 
 def date_format(value):
+    if value == "yesterday" or value == "yes" or value == "y":
+        return str(value)
     error_msg = "Invalid date: Date expected with this format: 'Day Month Year', exemple: 16 Nov 2019"
     splitted = value.split(" ")
     if len(splitted) != 3:
@@ -233,15 +235,34 @@ def write_activity(activity, prev):
     if activity:
         write_new_activity(activity)
 
+def get_yesterday_date(today_date):
+    f = open_file(get_stock_path(), "r", False)
+    if not f:
+        return None
+    lines = f.readlines()
+    f.close()
+    activities_list = []
+    for line in reversed(lines):
+        line = line.rstrip("\n")
+        splitted = line.split(stock_separator)
+        if len(splitted) == 1:
+            if splitted[0] != today_date and splitted[0] != "-----------":
+                return splitted[0]
+    return None
+
 def get_activities_list(spec_date):
     if spec_date != None:
-        cur_date = spec_date[0]
+        if spec_date[0] == "yesterday" or spec_date[0] == "yes" or spec_date[0] == "y":
+            cur_date = get_yesterday_date(date.today().strftime("%d %b %Y"))
+            if cur_date == None:
+                return None
+        else:
+            cur_date = spec_date[0]
     else:
         cur_date = date.today().strftime("%d %b %Y")
     f = open_file(get_stock_path(), "r", False)
     if not f:
         return None
-    f = open(get_stock_path(), "r")
     lines = f.readlines()
     f.close()
     i = len(lines)
@@ -262,7 +283,10 @@ def get_activities_list(spec_date):
 
 def display_normal_summary(activities_list, spec_date):
     if spec_date != None:
-        print(colors.BOLD + "\nSummary of the " + spec_date[0] + ":\n" + colors.END)
+        if spec_date[0] == "yesterday" or spec_date[0] == "yes" or spec_date[0] == "y":
+            print(colors.BOLD + "\nSummary of last working day:\n" + colors.END)
+        else:
+            print(colors.BOLD + "\nSummary of the " + spec_date[0] + ":\n" + colors.END)
     else:
         print(colors.BOLD + "\nSummary of your day:\n" + colors.END)
     for activity in activities_list:
@@ -279,7 +303,10 @@ def check_normal_summary(activity, spec_date):
         display_normal_summary(activities_list, spec_date)
     else:
         if spec_date != None:
-            print(colors.REMOVE + "No summary to display for " + spec_date[0] + colors.END)
+            if spec_date[0] == "yesterday" or spec_date[0] == "yes" or spec_date[0] == "y":
+                print(colors.REMOVE + "No summary to display for last working day" + colors.END)
+            else:
+                print(colors.REMOVE + "No summary to display for " + spec_date[0] + colors.END)
         else:
             print(colors.REMOVE + "No summary to display for today" + colors.END)
     if activity:
