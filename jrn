@@ -368,17 +368,17 @@ def display_readable_summary(activities_list, spec_date):
     else:
         time = "{}m".format(total_minutes)
     print(colors.CYAN + colors.BOLD + colors.UNDERLINE + "\nTotal work time:\t" + colors.END + colors.CYAN + colors.BOLD + time + colors.END)
-    total_hours += supposed_hours
-    total_minutes += supposed_minutes
-    total_hours += int(total_minutes / 60)
-    total_minutes %= 60
-    if total_hours and total_minutes:
-        time = "{}h{}m".format(total_hours, total_minutes)
-    elif not total_minutes:
-        time = "{}h".format(total_hours)
-    else:
-        time = "{}m".format(total_minutes)
     if supposed_activity != None:
+        total_hours += supposed_hours
+        total_minutes += supposed_minutes
+        total_hours += int(total_minutes / 60)
+        total_minutes %= 60
+        if total_hours and total_minutes:
+            time = "{}h{}m".format(total_hours, total_minutes)
+        elif not total_minutes:
+            time = "{}h".format(total_hours)
+        else:
+            time = "{}m".format(total_minutes)
         print("\nWith pending ativity: " + colors.TITLE + colors.BOLD + supposed_activity + colors.END + " started at: " + colors.BOLD + colors.TIME + supposed_start.strftime("%H:%M") + colors.END)
         print(colors.CYAN + colors.BOLD + colors.UNDERLINE + "\nTotal work time with pending activity:\t" + colors.END + colors.WARNING + colors.BOLD + time + colors.END)
 
