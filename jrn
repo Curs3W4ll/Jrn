@@ -314,9 +314,18 @@ def check_normal_summary(activity, spec_date):
 
 def display_readable_summary(activities_list, spec_date):
     activities_sum = []
+    supposed_activity = None
     for activity in activities_list:
         activity = activity.rstrip("\n")
         splitted = activity.split("|")
+        if len(splitted) == 2:
+            now = datetime.now()
+            supposed_activity = splitted[0]
+            supposed_start = datetime(now.year, now.month, now.day, int(splitted[1].split(":")[0]), int(splitted[1].split(":")[1]), 0)
+            duration = (now - supposed_start).total_seconds()
+            supposed_hours = int(duration / 3600)
+            duration %= 3600
+            supposed_minutes = int(duration / 60)
         if len(splitted) >= 4:
             if "h" in splitted[3]:
                 hours = int(splitted[3].split("h")[0])
@@ -359,6 +368,19 @@ def display_readable_summary(activities_list, spec_date):
     else:
         time = "{}m".format(total_minutes)
     print(colors.CYAN + colors.BOLD + colors.UNDERLINE + "\nTotal work time:\t" + colors.END + colors.CYAN + colors.BOLD + time + colors.END)
+    total_hours += supposed_hours
+    total_minutes += supposed_minutes
+    total_hours += int(total_minutes / 60)
+    total_minutes %= 60
+    if total_hours and total_minutes:
+        time = "{}h{}m".format(total_hours, total_minutes)
+    elif not total_minutes:
+        time = "{}h".format(total_hours)
+    else:
+        time = "{}m".format(total_minutes)
+    if supposed_activity != None:
+        print("\nWith pending ativity: " + colors.TITLE + colors.BOLD + supposed_activity + colors.END + " started at: " + colors.BOLD + colors.TIME + supposed_start.strftime("%H:%M") + colors.END)
+        print(colors.CYAN + colors.BOLD + colors.UNDERLINE + "\nTotal work time with pending activity:\t" + colors.END + colors.WARNING + colors.BOLD + time + colors.END)
 
 def check_readable_summary(activity, spec_date):
     activities_list = get_activities_list(spec_date)
