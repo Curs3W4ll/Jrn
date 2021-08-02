@@ -283,7 +283,7 @@ def get_activities_list(spec_date):
 
 def display_normal_summary(activities_list, spec_date):
     if spec_date != None:
-        if spec_date[0] == "yesterday" or spec_date[0] == "yes" or spec_date[0] == "y":
+        if spec_date[0] == "yesterday" or spec_date[0] == "yes" or spec_date == "y":
             print(colors.BOLD + "\nSummary of last working day:\n" + colors.END)
         else:
             print(colors.BOLD + "\nSummary of the " + spec_date[0] + ":\n" + colors.END)
@@ -342,7 +342,10 @@ def display_readable_summary(activities_list, spec_date):
                         elem[2] += minutes
                         break;
     if spec_date != None:
-        print(colors.BOLD + "\nSummary of the " + spec_date[0] + ":\n" + colors.END)
+        if spec_date[0] == "yesterday" or spec_date[0] == "yes" or spec_date[0] == "y":
+            print(colors.BOLD + "\nSummary of the last working day:\n" + colors.END)
+        else:
+            print(colors.BOLD + "\nSummary of the " + spec_date[0] + ":\n" + colors.END)
     else:
         print(colors.BOLD + "\nSummary of your day:\n" + colors.END)
     total_hours = 0
