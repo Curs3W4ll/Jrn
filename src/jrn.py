@@ -284,11 +284,11 @@ def get_activities_list(spec_date):
 def display_normal_summary(activities_list, spec_date):
     if spec_date != None:
         if spec_date[0] == "yesterday" or spec_date[0] == "yes" or spec_date == "y":
-            print(colors.BOLD + "\nSummary of last working day:\n" + colors.END)
+            print("\n" + colors.BOLD + "Summary of last working day:\n" + colors.END)
         else:
-            print(colors.BOLD + "\nSummary of the " + spec_date[0] + ":\n" + colors.END)
+            print("\n" + colors.BOLD + "Summary of the " + spec_date[0] + ":\n" + colors.END)
     else:
-        print(colors.BOLD + "\nSummary of your day:\n" + colors.END)
+        print("\n" + colors.BOLD + "Summary of your day:\n" + colors.END)
     for activity in activities_list:
         activity = activity.rstrip("\n")
         splitted = activity.split("|")
@@ -343,11 +343,11 @@ def display_readable_summary(activities_list, spec_date):
                         break;
     if spec_date != None:
         if spec_date[0] == "yesterday" or spec_date[0] == "yes" or spec_date[0] == "y":
-            print(colors.BOLD + "\nSummary of the last working day:\n" + colors.END)
+            print("\n" + colors.BOLD + "Summary of the last working day:\n" + colors.END)
         else:
-            print(colors.BOLD + "\nSummary of the " + spec_date[0] + ":\n" + colors.END)
+            print("\n" + colors.BOLD + "Summary of the " + spec_date[0] + ":\n" + colors.END)
     else:
-        print(colors.BOLD + "\nSummary of your day:\n" + colors.END)
+        print("\n" + colors.BOLD + "Summary of your day:\n" + colors.END)
     total_hours = 0
     total_minutes = 0
     for elem in activities_sum:
@@ -370,7 +370,7 @@ def display_readable_summary(activities_list, spec_date):
         time = "{}h".format(total_hours)
     else:
         time = "{}m".format(total_minutes)
-    print(colors.CYAN + colors.BOLD + colors.UNDERLINE + "\nTotal work time:\t" + colors.END + colors.CYAN + colors.BOLD + time + colors.END)
+    print("\n" + colors.CYAN + colors.BOLD + colors.UNDERLINE + "Total work time:\t" + colors.END + colors.CYAN + colors.BOLD + time + colors.END)
     if supposed_activity != None:
         total_hours += supposed_hours
         total_minutes += supposed_minutes
@@ -383,7 +383,7 @@ def display_readable_summary(activities_list, spec_date):
         else:
             time = "{}m".format(total_minutes)
         print("\nWith pending ativity: " + colors.TITLE + colors.BOLD + supposed_activity + colors.END + " started at: " + colors.BOLD + colors.TIME + supposed_start.strftime("%H:%M") + colors.END)
-        print(colors.CYAN + colors.BOLD + colors.UNDERLINE + "\nTotal work time with pending activity:\t" + colors.END + colors.WARNING + colors.BOLD + time + colors.END)
+        print("\n" + colors.CYAN + colors.BOLD + colors.UNDERLINE + "Total work time with pending activity:\t" + colors.END + colors.WARNING + colors.BOLD + time + colors.END)
 
 def check_readable_summary(activity, spec_date):
     activities_list = get_activities_list(spec_date)
