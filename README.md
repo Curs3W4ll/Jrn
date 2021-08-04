@@ -39,19 +39,15 @@ chmod +x build.sh; ./build.sh
 
 ## Update
 
-You need to update by and, with the git repository:
 ```
 cd .jrn
-git restore .
-git pull
-chmod +x build.sh; ./build.sh
+./update.sh
 ```
 
 ## Removing
 
 ```
 cd .jrn
-chmod +x remove.sh
 ./remove.sh
 cd ..
 rm -rf .jrn

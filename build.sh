@@ -9,4 +9,4 @@ echo "Make management scripts executable..."
 chmod +x ./update.sh &> /dev/null
 chmod +x ./remove.sh &> /dev/null
 
-echo -e "\n\nInstallation done\nType jrn -h for help"
+echo -e "\n\nInstallation done\nType `jrn --help` for help"
