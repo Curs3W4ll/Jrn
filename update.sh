@@ -12,7 +12,7 @@ chmod +x ./jrn &> /dev/null
 sudo mv ./jrn /bin/jrn &> /dev/null
 
 echo "Make management scripts executable..."
-chmod +x ./update.sh.sh &> /dev/null
-chmod +x ./remove.sh.sh &> /dev/null
+chmod +x ./update.sh &> /dev/null
+chmod +x ./remove.sh &> /dev/null
 
 echo "Update done"
